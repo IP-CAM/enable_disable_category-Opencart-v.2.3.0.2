@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+   <name><![CDATA[Enable/Disable Category]]></name>
+   <code>enable_disable_category</code>
+   <version>1.0</version>
+   <link>https://free-time-info.com</link>
+   <author>xxvirusxx</author>
+
+	<file path="admin/controller/catalog/category.php">
+		<operation>
+			<search><![CDATA[$data['sort_sort_order'] = $this->url->link]]></search>
+			<add position="after"><![CDATA[
+		$data['sort_status'] = $this->url->link('catalog/category', 'token=' . $this->session->data['token'] . '&sort=status' . $url, true);
+			]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[function delete()]]></search>
+			<add position="before"><![CDATA[
+	public function enable() {
+		$this->load->language('catalog/category');
+
+		$this->document->setTitle($this->language->get('heading_title'));
+
+		$this->load->model('catalog/category');
+
+		if (isset($this->request->post['selected']) && $this->validateEnable()) {
+			foreach ($this->request->post['selected'] as $category_id) {
+				$this->model_catalog_category->enableCategory($category_id);
+			}
+
+			$this->session->data['success'] = $this->language->get('text_enable_success');
+
+			$url = '';
+
+			if (isset($this->request->get['sort'])) {
+				$url .= '&sort=' . $this->request->get['sort'];
+			}
+
+			if (isset($this->request->get['order'])) {
+				$url .= '&order=' . $this->request->get['order'];
+			}
+
+			if (isset($this->request->get['page'])) {
+				$url .= '&page=' . $this->request->get['page'];
+			}
+
+			$this->response->redirect($this->url->link('catalog/category', 'token=' . $this->session->data['token'] . $url, true));
+		}
+
+		$this->getList();
+	}
+
+	public function disable() {
+		$this->load->language('catalog/category');
+
+		$this->document->setTitle($this->language->get('heading_title'));
+
+		$this->load->model('catalog/category');
+
+		if (isset($this->request->post['selected']) && $this->validateDisable()) {
+			foreach ($this->request->post['selected'] as $category_id) {
+				$this->model_catalog_category->disableCategory($category_id);
+			}
+
+			$this->session->data['success'] = $this->language->get('text_disable_success');
+
+			$url = '';
+
+			if (isset($this->request->get['sort'])) {
+				$url .= '&sort=' . $this->request->get['sort'];
+			}
+
+			if (isset($this->request->get['order'])) {
+				$url .= '&order=' . $this->request->get['order'];
+			}
+
+			if (isset($this->request->get['page'])) {
+				$url .= '&page=' . $this->request->get['page'];
+			}
+
+			$this->response->redirect($this->url->link('catalog/category', 'token=' . $this->session->data['token'] . $url, true));
+		}
+
+		$this->getList();
+	}
+			]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[function validateForm()]]></search>
+			<add position="before"><![CDATA[
+	protected function validateEnable() {
+		if (!$this->user->hasPermission('modify', 'catalog/category')) {
+			$this->error['warning'] = $this->language->get('error_permission');
+		}
+
+		return !$this->error;
+	}
+
+	protected function validateDisable() {
+		if (!$this->user->hasPermission('modify', 'catalog/category')) {
+			$this->error['warning'] = $this->language->get('error_permission');
+		}
+
+		return !$this->error;
+	}
+			]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[$data['delete'] =]]></search>
+			<add position="after"><![CDATA[
+		$data['enable'] = $this->url->link('catalog/category/enable', 'token=' . $this->session->data['token'] . $url, true);
+		$data['disable'] = $this->url->link('catalog/category/disable', 'token=' . $this->session->data['token'] . $url, true);
+			]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA['name'        => $result['name'],]]></search>
+			<add position="after"><![CDATA[
+				'status'      => $result['status'],
+			]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[$data['column_action']]]></search>
+			<add position="after"><![CDATA[
+		$data['column_status'] = $this->language->get('column_status');
+			]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[$data['button_delete']]]></search>
+			<add position="after"><![CDATA[
+		$data['button_enable'] = $this->language->get('button_enable');
+		$data['button_disable'] = $this->language->get('button_disable');
+			]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[$data['text_confirm']]]></search>
+			<add position="after"><![CDATA[
+		$data['text_enabled'] = $this->language->get('text_enabled');
+		$data['text_disabled'] = $this->language->get('text_disabled');
+			]]></add>
+		</operation>
+	</file>
+
+	<file path="admin/language/en-gb/catalog/category.php">
+		<operation>
+			<search><![CDATA[$_['text_default']]]></search>
+			<add position="after"><![CDATA[
+$_['text_enable_success']	 = 'Success: You have enabled categories!';
+$_['text_disable_success']	 = 'Success: You have disabled categories!';
+			]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[$_['column_action']]]></search>
+			<add position="after"><![CDATA[
+$_['column_status']          = 'Status';
+			]]></add>
+		</operation>
+	</file>
+
+	<file path="admin/model/catalog/category.php">
+		<operation>
+			<search><![CDATA[c1.parent_id, c1.sort_order]]></search>
+			<add position="replace"><![CDATA[c1.parent_id, c1.sort_order, c1.status]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA['name',]]></search>
+			<add position="after"><![CDATA[
+			'status',
+			]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[function getTotalCategories()]]></search>
+			<add position="before"><![CDATA[
+	public function enableCategory($category_id) {
+		$this->db->query("UPDATE " . DB_PREFIX . "category SET status = '1' WHERE category_id = '" . (int)$category_id . "'");
+
+		$this->cache->delete('category');
+	}
+
+	public function disableCategory($category_id) {
+		$this->db->query("UPDATE " . DB_PREFIX . "category SET status = '0' WHERE category_id = '" . (int)$category_id . "'");
+
+		$this->cache->delete('category');
+	}
+			]]></add>
+		</operation>
+	</file>
+
+	<file path="admin/view/template/catalog/category_list.tpl">
+		<operation>
+			<search><![CDATA[<button type="button" data-toggle="tooltip" title="<?php echo $button_delete; ?>"]]></search>
+			<add position="before"><![CDATA[
+<button type="button" data-toggle="tooltip" title="<?php echo $button_enable; ?>" class="btn btn-success" onclick="$('#form-category').attr('action', '<?php echo $enable; ?>'); $('#form-category').submit();"><i class="fa fa-check"></i></button>
+<button type="button" data-toggle="tooltip" title="<?php echo $button_disable; ?>" class="btn btn-success" onclick="$('#form-category').attr('action', '<?php echo $disable; ?>'); $('#form-category').submit();"><i class="fa fa-times"></i></button>
+			]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[<td class="text-right"><?php echo $column_action; ?></td>]]></search>
+			<add position="before"><![CDATA[
+                  <td class="text-left"><?php if ($sort == 'status') { ?>
+                    <a href="<?php echo $sort_status; ?>" class="<?php echo strtolower($order); ?>">Status</a>
+                    <?php } else { ?>
+                    <a href="<?php echo $sort_status; ?>">Status</a>
+                    <?php } ?>
+                  </td>
+			]]></add>
+		</operation>
+		<operation>
+			<search><![CDATA[<td class="text-right"><?php echo $category['sort_order']; ?></td>]]></search>
+			<add position="after"><![CDATA[
+                <?php if ($category['status'] == 1) { ?>
+                	<td class="text-left"><font color="#00CC00"><?php echo $text_enabled; ?></font></td>
+                <?php } else { ?>
+                	<td class="text-left"><font color="#FF0000"><?php echo $text_disabled; ?></font></td>
+                <?php } ?>
+			]]></add>
+		</operation>
+	</file>
+</modification>

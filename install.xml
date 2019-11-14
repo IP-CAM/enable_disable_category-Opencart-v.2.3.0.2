@@ -3,7 +3,7 @@
    <name><![CDATA[Enable/Disable Category]]></name>
    <code>enable_disable_category</code>
    <version>1.0</version>
-   <link>https://free-time-info.com</link>
+   <link>https://www.free-time-info.com</link>
    <author>xxvirusxx</author>
 
 	<file path="admin/controller/catalog/category.php">
